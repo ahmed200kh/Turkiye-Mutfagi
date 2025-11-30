@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <title>Türkiye Mutfağı – Akıllı Tarif Keşif Sistemi</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+      /* Genel Gövde Stili: Uygulamanın temel arka plan rengini (Dark Slate) belirler. */
+      body {
+        background-color: #0f172a; /* A deeper, more professional dark slate */
+      }
+
+      /* * --- Özelleştirilmiş Kaydırma Çubuğu (Custom Scrollbar) ---
+       * Tarayıcının varsayılan kaydırma çubuğu yerine, uygulamanın karanlık temasıyla
+       * uyumlu, modern ve estetik bir kaydırma çubuğu tasarımı.
+       */
+      
+      /* Webkit Tabanlı Tarayıcılar için (Chrome, Safari, Edge, Opera) */
+      ::-webkit-scrollbar {
+        width: 8px; /* Dikey çubuğun genişliği */
+        height: 8px; /* Yatay çubuğun yüksekliği */
+      }
+
+      /* Kaydırma çubuğunun arka plan yolu (Track) */
+      ::-webkit-scrollbar-track {
+        background: #1e293b; /* Koyu slate rengi */
+        border-radius: 10px;
+      }
+
+      /* Kaydırma çubuğunun tutamacı (Thumb) */
+      ::-webkit-scrollbar-thumb {
+        background: #475569; /* Orta ton slate rengi */
+        border-radius: 10px;
+      }
+
+      /* Tutamacın üzerine gelindiğindeki renk değişimi (Hover State) */
+      ::-webkit-scrollbar-thumb:hover {
+        background: #64748b; /* Daha açık slate rengi */
+      }
+
+      /* Firefox Tarayıcıları için Kaydırma Çubuğu Ayarları */
+      html {
+        scrollbar-width: thin; /* İnce çubuk */
+        scrollbar-color: #475569 #1e293b; /* Sırasıyla: Tutamaç Rengi - Arka Plan Rengi */
+      }
+      /* -------------------------------------- */
+    </style>
+
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.26.0"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css"> </head>
+<body>
+<div id="root"></div>
+
+<script type="module" src="/index.tsx"></script>
+</body>
+</html>
