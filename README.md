@@ -1,74 +1,69 @@
 # Türkiye Mutfağı – Akıllı Tarif Keşif Sistemi
 
-### 1\. Proje Özeti
+## 1\. Proje Özeti
 
-"Türkiye Mutfağı – Akıllı Tarif Keşif Sistemi", Tek Sayfalı Uygulama (SPA) olarak geliştirilmiş etkileşimli bir web uygulamasıdır. Proje, kullanıcılara Türk mutfağının zengin tariflerini keşfetmeleri, kaydetmeleri ve değerlendirmeleri için modern ve hızlı bir platform sunmayı amaçlamaktadır.
+**"Türkiye Mutfağı – Akıllı Tarif Keşif Sistemi"**, Tek Sayfalı Uygulama (SPA) mimarisiyle geliştirilmiş, modern ve etkileşimli bir web platformudur. Bu proje, geleneksel Türk mutfağını dijital çağa taşıyarak, kullanıcılara zengin tarif arşivini keşfetme, kişiselleştirme ve yapay zeka desteğiyle mutfak deneyimlerini iyileştirme imkanı sunar.
 
-Proje, Google Gemini yapay zeka teknolojilerini entegre ederek, eldeki malzemelere göre tarif öneren "Akıllı Şef" ve kullanıcı sorularını yanıtlayan "Akıllı Yardımcı" (Chatbot) gibi benzersiz özellikler sunmaktadır. Tüm sistem, veritabanı (Firestore) ve kimlik doğrulama (Authentication) hizmetleri sağlayan Google Firebase altyapısı üzerine kurulmuştur.
+Proje, **Google Gemini** yapay zeka teknolojilerini entegre ederek, eldeki malzemelere göre anlık tarif üreten **"Akıllı Şef"** ve kullanıcı sorularını yanıtlayan **"Akıllı Yardımcı" (Chatbot)** gibi benzersiz özellikler sunmaktadır. Tüm sistem, veritabanı (Firestore) ve kimlik doğrulama (Authentication) hizmetleri sağlayan **Google Firebase** altyapısı üzerine kurulmuştur.
 
-### 2\. Proje Hedefleri (Project Objectives)
+## 2\. Proje Hedefleri
 
-- **Kapsamlı Veritabanı:** 1000'den fazla tarifHızlı ve aranabilir bulut veritabanında (Firestore)
+- **Kapsamlı Veritabanı:** 1000'den fazla özgün tarifi statik dosyalardan kurtarıp, hızlı ve aranabilir bir bulut veritabanına (Firestore) taşımak.
 - **Etkileşimli Kullanıcı Deneyimi:** Kullanıcıların hesap oluşturmasına, giriş yapmasına, favori tariflerini kaydetmesine ve tariflere puan verip yorum yapmasına olanak tanımak.
 - **"Ne Pişirsem?" Sorununa Çözüm:** Kullanıcının elindeki malzemeleri analiz ederek Gemini Yapay Zeka desteğiyle en uygun tarifleri önermek.
-- **Akıllı Destek:** Kullanıcıların yemek pişirme teknikleri hakkındaki sorularını yanıtlayabilen bir sanal asistan (Chatbot) sağlamak.
+- **Akıllı Destek:** Türk mutfağı teknikleri konusunda eğitilmiş bir sohbet botu ile kullanıcılara 7/24 asistanlık hizmeti vermek.
 - **Güvenlik ve Ölçeklenebilirlik:** API anahtarlarının korunması ve katı veritabanı güvenlik kuralları (Firebase Rules) ile tam güvenli bir sistem inşa etmek.
 
-### 3\. Fonksiyonel Özellikler (Functional Features)
+## 3\. Fonksiyonel Özellikler
 
 Uygulama birkaç ana modülden oluşmaktadır:
 
-#### A. Kimlik Doğrulama ve Kullanıcı Yönetimi (Authentication)
+### A. Kimlik Doğrulama ve Kullanıcı Yönetimi
 
 - **Kayıt ve Giriş:** Kullanıcı adı, e-posta ve şifre ile güvenli hesap oluşturma ve giriş yapma (Firebase Auth).
-- **Şifre Sıfırlama:** "Şifremi Unuttum" özelliği ile e-posta yoluyla şifre yenileme bağlantısı gönderme.
 - **Profil Yönetimi:** Kullanıcı bilgilerini görüntüleme sayfası.
 
-#### B. Tarif Keşfi (Recipe Discovery)
+### B. Tarif Keşfi
 
 - **Dinamik Listeleme:** Tüm tarifler (Ana Yemekler ve Tatlılar) doğrudan Firestore veritabanından çekilir.
-- **Gelişmiş Filtreleme:** Kullanıcılar tarifleri şunlara göre filtreleyebilir:
+- **Gelişmiş Filtreleme:**
   - İsim ile arama.
   - Zorluk Seviyesi (Kolay, Orta, Zor).
   - Maliyet (Ucuz, Orta, Pahalı).
   - Maksimum Hazırlama Süresi.
 - **Detaylı Tarif Görüntüleme:** İnteraktif bir pencere (Modal) içinde tarif görseli, malzemeler (işaretlenebilir liste) ve adım adım talimatlar sunulur.
 
-#### C. Etkileşim ve Topluluk (User Interaction)
+### C. Etkileşim ve Topluluk
 
 - **Favoriler Sistemi:** Kullanıcılar beğendikleri tarifleri tek tıkla favorilerine ekleyebilir veya çıkarabilir.
 - **Değerlendirme ve Yorumlar:** Sadece kayıtlı kullanıcılar tariflere 1-5 yıldız arası puan verebilir ve yorum yazabilir.
 - **Kullanıcı Etkinlikleri:** Kullanıcılar kendi yaptıkları tüm yorumları ve puanlamaları özel bir sayfada görüntüleyebilir.
 
-#### D. Yapay Zeka Modülleri (Artificial Intelligence)
+### D. Yapay Zeka Modülleri
 
-- **Akıllı Şef (AiChef):** `gemini` modelini kullanır. Kullanıcının girdiği malzemeleri analiz eder ve JSON formatında yapılandırılmış tarif önerileri sunar.
+- **Akıllı Şef (AiChef):** `gemini-2.5-pro` modelini kullanır. Kullanıcının girdiği malzemeleri analiz eder ve JSON formatında yapılandırılmış tarif önerileri sunar.
 - **Akıllı Yardımcı (Chatbot):** Türk mutfağı konusunda uzmanlaşmış, bağlamı anlayabilen bir sohbet botudur. Kullanıcılara anlık yardım sağlar.
 
-### 4\. Teknik Mimari (Technical Architecture)
+### Frontend
 
-Proje, **Client-Server** mimarisine dayanmaktadır ancak sunucu tarafı (Server-side) için **Serverless** (Sunucusuz) teknolojiler kullanılmıştır.
+- **Framework:** React (v19)
+- **Dil:** TypeScript (Tip güvenliği için).
+- **Build Tool:** Vite (Yüksek performanslı geliştirme ortamı).
+- **Stil:** Tailwind CSS (Modern ve responsive tasarım).
+- **State Management:** React Context API.
 
-- **Frontend (Ön Yüz):**
+### Backend as a Service (BaaS)
 
-  - **Framework:** React (v19)
-  - **Dil:** TypeScript (Tip güvenliği için).
-  - **Build Tool:** Vite (Yüksek performanslı geliştirme ortamı).
-  - **Stil (Styling):** Tailwind CSS (Modern ve responsive tasarım).
-  - **State Management:** React Context API.
+- **Platform:** Google Firebase.
+- **Veritabanı:** Cloud Firestore (NoSQL).
+- **Kimlik Doğrulama:** Firebase Authentication.
 
-- **Backend as a Service (BaaS):**
+### Yapay Zeka (AI Service)
 
-  - **Platform:** Google Firebase.
-  - **Veritabanı:** Cloud Firestore (NoSQL).
-  - **Kimlik Doğrulama:** Firebase Authentication.
+- **Model:** Google Gemini (`gemini-2.5-pro`).
+- **Entegrasyon:** `@google/genai` SDK.
 
-- **Yapay Zeka (AI Service):**
-
-  - **Model:** Google Gemini (`gemini-flash`).
-  - **Entegrasyon:** `@google/genai` SDK.
-
-### 5\. Veritabanı Şeması (Database Schema)
+## 5\. Veritabanı Şeması (Database Schema)
 
 Firestore üzerinde verimli okuma/yazma işlemleri için tasarlanmış NoSQL yapısı:
 
@@ -76,24 +71,48 @@ Firestore üzerinde verimli okuma/yazma işlemleri için tasarlanmış NoSQL yap
 - **`recipes` Koleksiyonu:** 1020 adet tarifin detaylı verisi (isim, resim, süre, malzemeler, vb.).
 - **`ratings` Koleksiyonu:** Kullanıcı yorumları ve puanlamaları (Tarif ID ve Kullanıcı ID ile ilişkili).
 
-### 6\. Sonuç (Conclusion)
+## 6\. Kurulum ve Yapılandırma (Installation & Configuration)
 
-Bu proje, modern web teknolojileri (React, TypeScript), bulut bilişim (Firebase) ve yapay zekanın (Gemini) başarılı bir entegrasyonudur. Günlük bir sorun olan "yemek seçimi" problemine hem geleneksel veritabanı yöntemleriyle hem de yenilikçi yapay zeka çözümleriyle yaklaşarak, kullanıcı dostu ve profesyonel bir ürün ortaya koymaktadır.
+Projeyi yerel ortamınızda çalıştırmak için aşağıdaki adımları takip edin.
 
----
+### Adım 1: Proje Klasörüne Girin
 
-### Kurulum (Installation)
+Terminal veya komut satırını açın ve proje klasörünün bulunduğu dizine gidin:
 
-1.  Repoyu klonlayın:
-    ```bash
-    git clone https://github.com/username/project-name.git
-    ```
-2.  Bağımlılıkları yükleyin:
-    ```bash
-    npm install
-    ```
-3.  `.env.local` dosyasını oluşturun ve API anahtarlarınızı ekleyin.
-4.  Projeyi başlatın:
-    ```bash
-    npm run dev
-    ```
+````bash
+cd proje-klasoru
+
+### Adım 2: Bağımlılıkları Yükleyin
+
+```bash
+npm install
+````
+
+### Adım 3: Çevresel Değişkenleri Ayarlayın (ÖNEMLİ)
+
+Projenin kök dizininde `.env.local` adında bir dosya oluşturun. Projenin veritabanına ve yapay zeka servisine erişebilmesi için aşağıdaki API anahtarlarını bu dosyaya eklemeniz gerekmektedir:
+
+```env
+# Google Gemini API Anahtarı (Yapay Zeka Özellikleri İçin)
+GEMINI_API_KEY=Sizin_Gemini_API_Anahtariniz
+
+# Google Firebase Yapılandırması (Veritabanı ve Kimlik Doğrulama İçin)
+VITE_FIREBASE_API_KEY=Sizin_Firebase_API_Key
+VITE_FIREBASE_AUTH_DOMAIN=sizin-proje-id.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=sizin-proje-id
+VITE_FIREBASE_STORAGE_BUCKET=sizin-proje-id.appspot.com
+VITE_FIREBASE_MESSAGING_SENDER_ID=Sizin_Sender_ID
+VITE_FIREBASE_APP_ID=Sizin_App_ID
+```
+
+> **Not:** Bu anahtarları Google AI Studio ve Firebase Console üzerinden alabilirsiniz.
+
+### Adım 4: Uygulamayı Başlatın
+
+```bash
+npm run dev
+```
+
+Uygulama tarayıcınızda `http://localhost:3000` (veya benzeri bir portta) çalışmaya başlayacaktır.
+
+iyi günler :)
