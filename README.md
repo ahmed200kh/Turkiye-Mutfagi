@@ -1,5 +1,7 @@
 # Türkiye Mutfağı – Akıllı Tarif Keşif Sistemi
 
+Projenini 1 dakika tanıtım videosu: https://www.youtube.com/watch?v=HnTNP6hN_xg
+
 ## 1\. Proje Özeti
 
 **"Türkiye Mutfağı – Akıllı Tarif Keşif Sistemi"**, Tek Sayfalı Uygulama (SPA) mimarisiyle geliştirilmiş, modern ve etkileşimli bir web platformudur. Bu proje, geleneksel Türk mutfağını dijital çağa taşıyarak, kullanıcılara zengin tarif arşivini keşfetme, kişiselleştirme ve yapay zeka desteğiyle mutfak deneyimlerini iyileştirme imkanı sunar.
