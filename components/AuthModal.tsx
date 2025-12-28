@@ -7,6 +7,7 @@ import { AuthContext } from '../contexts/AuthContext';
 import { CloseIcon } from './icons';
 import Spinner from './Spinner';
 import * as api from '../services/apiService'; // API servisleri içe aktarılıyor
+import { MIN_PASSWORD_LENGTH, MAX_USERNAME_LENGTH, ERROR_MESSAGES } from '../constants';
 
 /**
  * AuthMode Tipi
@@ -41,6 +42,14 @@ const AuthModal: React.FC<AuthModalProps> = ({ mode: initialMode, onClose }) => 
   const auth = useContext(AuthContext); // Global Auth Context'e erişim
 
   /**
+   * validateEmail - E-posta Validasyonu
+   */
+  const validateEmail = (emailValue: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(emailValue);
+  };
+
+  /**
    * handleSubmit - Form Gönderme İşlemi
    * Kullanıcının girdiği verilere ve mevcut moda göre ilgili API işlemini başlatır.
    */
@@ -52,26 +61,68 @@ const AuthModal: React.FC<AuthModalProps> = ({ mode: initialMode, onClose }) => 
     
     // --- 1. Şifre Sıfırlama Mantığı ---
     if (mode === 'resetPassword') {
+        if (!validateEmail(email)) {
+            setError(ERROR_MESSAGES.INVALID_EMAIL);
+            setIsLoading(false);
+            return;
+        }
+        
         try {
             await api.apiSendPasswordResetEmail(email);
             setSuccess('Şifre sıfırlama bağlantısı e-posta adresinize gönderildi. Lütfen gelen kutunuzu kontrol edin.');
             setEmail(''); // Başarılı işlem sonrası e-posta alanını temizle
         } catch (err: any) {
-            setError(err.message || 'Bir hata oluştu.');
+            setError(err.message || ERROR_MESSAGES.UNKNOWN_ERROR);
         } finally {
             setIsLoading(false);
         }
         return; // İşlemi burada sonlandır
     }
     
-    // --- 2. Kayıt Olma Mantığı (Şifre Eşleşme Kontrolü) ---
-    if (mode === 'signup' && password !== confirmPassword) {
-        setError('Şifreler eşleşmiyor.');
+    // --- 2. E-posta Validasyonu ---
+    if (!validateEmail(email)) {
+        setError(ERROR_MESSAGES.INVALID_EMAIL);
         setIsLoading(false);
         return;
     }
+    
+    // --- 3. Kayıt Olma Validasyonu ---
+    if (mode === 'signup') {
+        if (username.length === 0) {
+            setError("Kullanıcı adı boş olamaz.");
+            setIsLoading(false);
+            return;
+        }
+        
+        if (username.length > MAX_USERNAME_LENGTH) {
+            setError(`Kullanıcı adı ${MAX_USERNAME_LENGTH} karakterden kısa olmalı.`);
+            setIsLoading(false);
+            return;
+        }
+        
+        if (password.length < MIN_PASSWORD_LENGTH) {
+            setError(ERROR_MESSAGES.INVALID_PASSWORD);
+            setIsLoading(false);
+            return;
+        }
+        
+        if (password !== confirmPassword) {
+            setError('Şifreler eşleşmiyor.');
+            setIsLoading(false);
+            return;
+        }
+    }
+    
+    // --- 4. Giriş Validasyonu ---
+    if (mode === 'login') {
+        if (password.length === 0) {
+            setError("Şifre boş olamaz.");
+            setIsLoading(false);
+            return;
+        }
+    }
 
-    // --- 3. Giriş veya Kayıt İşlemi ---
+    // --- 5. Giriş veya Kayıt İşlemi ---
     try {
       if (mode === 'login') {
         // Giriş yapma fonksiyonunu çağır
@@ -82,7 +133,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ mode: initialMode, onClose }) => 
       }
       onClose(); // İşlem başarılıysa modalı kapat
     } catch (err: any) {
-      setError(err.message || 'Bir hata oluştu.');
+      setError(err.message || ERROR_MESSAGES.UNKNOWN_ERROR);
     } finally {
       setIsLoading(false); // Yüklenme durumunu kapat
     }

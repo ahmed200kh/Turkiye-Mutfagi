@@ -68,13 +68,11 @@ const FavoritesPage: React.FC<FavoritesPageProps> = ({ onSelectRecipe }) => {
 
     // --- Yüklenme Arayüzü (Loading UI) ---
     // Hem Auth kontrolü hem de veri çekme işlemi sırasında Spinner gösterilir
-    if (auth?.loading || isLoading) {
+    if (auth?.loading) {
         return (
           <div className="pt-20">
             <Spinner />
-            {auth.loading 
-                ? <p className="text-center mt-4 text-slate-400">Kullanıcı doğrulaması yapılıyor...</p> 
-                : <p className="text-center mt-4 text-slate-400">Favorileriniz yükleniyor...</p>}
+            <p className="text-center mt-4 text-slate-400">Kullanıcı doğrulaması yapılıyor...</p>
           </div>
         );
     }
@@ -103,7 +101,20 @@ const FavoritesPage: React.FC<FavoritesPageProps> = ({ onSelectRecipe }) => {
             {/* RecipeGrid bileşenine 'favorites' tipi ile veriyi gönderiyoruz.
                 Burada 'recipeList' prop'u üzerinden Firestore'dan çektiğimiz veriyi (favoriteRecipes) aktarıyoruz.
             */}
-            <RecipeGrid type="favorites" recipeList={favoriteRecipes} onSelectRecipe={onSelectRecipe} />
+            {isLoading ? (
+                <div className="pt-20 flex justify-center">
+                    <Spinner />
+                </div>
+            ) : favoriteRecipes.length > 0 ? (
+                <RecipeGrid type="favorites" recipeList={favoriteRecipes} onSelectRecipe={onSelectRecipe} />
+            ) : (
+                <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
+                    <div className="text-center bg-slate-800 rounded-lg p-12 border border-slate-700">
+                        <h2 className="text-xl font-semibold text-white mb-2">Henüz Favori Eklememişsiniz</h2>
+                        <p className="text-slate-400">Beğendiğiniz tarifleri favorilere ekleyerek buradan erişebilirsiniz.</p>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

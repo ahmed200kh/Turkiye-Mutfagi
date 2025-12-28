@@ -8,6 +8,14 @@ import Spinner from './Spinner';
 import { SmartChefIcon } from './icons';
 import { type AiRecipeSuggestion } from '../types';
 import AiRecipeCard from './AiRecipeCard';
+import {
+  AI_LOADING_MESSAGE_INTERVAL,
+  AI_SUGGESTION_COUNT_OPTIONS,
+  AI_DEFAULT_SUGGESTION_COUNT,
+  AI_RECIPE_TYPES,
+  AI_INGREDIENT_STRICTNESS_OPTIONS,
+  MAX_INGREDIENTS_TEXT_LENGTH,
+} from '../constants';
 
 // Yapay zeka yanıt verirken kullanıcıya gösterilecek dinamik durum mesajları.
 // Bu, bekleme süresini (Latency) kullanıcı deneyimi açısından iyileştirir.
@@ -22,7 +30,7 @@ const AiChef: React.FC = () => {
   // --- Durum Yönetimi (State Management) ---
   const [ingredients, setIngredients] = useState(''); // Kullanıcı malzeme girdisi
   const [recipeType, setRecipeType] = useState<'Ana Yemek' | 'Tatlı'>('Ana Yemek'); // Tarif tipi tercihi
-  const [suggestionCount, setSuggestionCount] = useState<number>(3); // İstenen öneri sayısı
+  const [suggestionCount, setSuggestionCount] = useState<number>(AI_DEFAULT_SUGGESTION_COUNT); // İstenen öneri sayısı
   const [ingredientStrictness, setIngredientStrictness] = useState<'flexible' | 'strict'>('flexible'); // Malzeme katılığı
   
   const [results, setResults] = useState<AiRecipeSuggestion[] | null>(null); // API'den gelen sonuçlar
@@ -34,7 +42,7 @@ const AiChef: React.FC = () => {
 
   // --- Yan Etkiler (Side Effects) ---
   
-  // Yükleme sırasında mesajları belirli aralıklarla (3000ms) değiştiren döngü.
+  // Yükleme sırasında mesajları belirli aralıklarla değiştiren döngü.
   useEffect(() => {
     let interval: any;
     if (isLoading) {
@@ -42,7 +50,7 @@ const AiChef: React.FC = () => {
       interval = setInterval(() => {
         // Modulo operatörü (%) ile dizi uzunluğu içinde döngüsel artış sağlar
         setCurrentMessageIndex((prev) => (prev + 1) % LOADING_MESSAGES.length);
-      }, 3000);
+      }, AI_LOADING_MESSAGE_INTERVAL);
     }
     // Bileşen unmount olduğunda veya yükleme bittiğinde interval'i temizle (Cleanup)
     return () => clearInterval(interval);
@@ -56,7 +64,18 @@ const AiChef: React.FC = () => {
    */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!ingredients.trim()) return; // Boş gönderimi engelle
+    const trimmedIngredients = ingredients.trim();
+    
+    // Girdi validasyonu
+    if (!trimmedIngredients) {
+      setError("Lütfen en az bir malzeme girin.");
+      return;
+    }
+    
+    if (trimmedIngredients.length > MAX_INGREDIENTS_TEXT_LENGTH) {
+      setError(`Malzeme metni ${MAX_INGREDIENTS_TEXT_LENGTH} karakterden uzun olamaz.`);
+      return;
+    }
 
     setIsLoading(true);
     setResults(null);

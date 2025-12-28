@@ -39,7 +39,11 @@ export const AuthContext = createContext<AuthContextType | null>(null);
 
 // Custom Hook: Bileşenlerde AuthContext'e kolay erişim sağlar
 export const useAuth = () => {
-    return useContext(AuthContext) as AuthContextType;
+    const context = useContext(AuthContext);
+    if (!context) {
+        throw new Error("useAuth must be used within AuthProvider. AuthProvider'ı App bileşeninde sarmaladığından emin olun.");
+    }
+    return context;
 };
 
 interface AuthProviderProps {
@@ -60,27 +64,35 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
      */
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
-            if (firebaseUser) {
-                // Kullanıcı oturum açmışsa, Firestore'dan ek profil bilgilerini (username, favorites) getir
-                const userProfile = await getUserProfile(firebaseUser.uid);
-                
-                if (userProfile) {
-                    // Firebase Auth ve Firestore verilerini birleştirerek AppUser nesnesini oluştur
-                    setUser({
-                        uid: firebaseUser.uid,
-                        email: firebaseUser.email || userProfile.email,
-                        username: userProfile.username,
-                        favorites: userProfile.favorites || [] // Favori listesi yoksa boş dizi ata
-                    });
+            try {
+                if (firebaseUser) {
+                    // Kullanıcı oturum açmışsa, Firestore'dan ek profil bilgilerini (username, favorites) getir
+                    const userProfile = await getUserProfile(firebaseUser.uid);
+                    
+                    if (userProfile) {
+                        // Firebase Auth ve Firestore verilerini birleştirerek AppUser nesnesini oluştur
+                        setUser({
+                            uid: firebaseUser.uid,
+                            email: firebaseUser.email || userProfile.email,
+                            username: userProfile.username,
+                            favorites: userProfile.favorites || [] // Favori listesi yoksa boş dizi ata
+                        });
+                    } else {
+                        // Firestore'da kullanıcı kaydı bulunamadı - kritik hata
+                        console.error("Kullanıcı Auth servisinde mevcut, ancak Firestore kaydı bulunamadı. UID:", firebaseUser.uid);
+                        // Kullanıcı verilerini temizle
+                        setUser(null);
+                    }
                 } else {
-                    console.error("Kullanıcı Auth servisinde mevcut, ancak Firestore kaydı bulunamadı.");
+                    // Kullanıcı oturum açmamışsa state'i temizle
                     setUser(null);
                 }
-            } else {
-                // Kullanıcı oturum açmamışsa state'i temizle
+            } catch (error) {
+                console.error("Oturum durumu kontrol sırasında hata:", error);
                 setUser(null);
+            } finally {
+                setLoading(false); // İlk kontrol tamamlandı, yükleme durumunu kapat
             }
-            setLoading(false); // İlk kontrol tamamlandı, yükleme durumunu kapat
         });
         
         // Component unmount olduğunda dinleyiciyi temizle (Cleanup Function)
@@ -108,8 +120,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
      */
     const toggleFavorite = async (recipeId: number) => {
         if (!user) {
-            alert("Favori işlemi yapmak için önce giriş yapmalısınız.");
-            return;
+            throw new Error("Favori işlemi yapmak için önce giriş yapmalısınız.");
         }
 
         try {
@@ -129,7 +140,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
         } catch (error) {
             console.error("Favori durumu güncellenemedi:", error);
-            alert("İşlem sırasında bir hata oluştu.");
+            throw error; // Hatayı çağıran bileşene ilet
         }
     };
 

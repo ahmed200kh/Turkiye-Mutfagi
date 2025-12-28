@@ -7,6 +7,11 @@ import { ChatBubbleIcon, CloseIcon, PaperAirplaneIcon, SmartChefIcon } from './i
 // Gemini AI servisi ile iletişim kurmak için gerekli fonksiyonun içe aktarılması
 import { sendMessageToBot } from '../services/geminiService';
 import Spinner from './Spinner';
+import {
+  CHATBOT_INITIAL_MESSAGE,
+  CHATBOT_ERROR_MESSAGE,
+  MAX_CHATBOT_MESSAGE_LENGTH,
+} from '../constants';
 
 // Sohbet arayüzündeki her bir mesajın veri yapısını tanımlayan TypeScript arayüzü.
 interface Message {
@@ -25,7 +30,7 @@ const Chatbot: React.FC = () => {
   // Mesaj geçmişini tutan dizi. Başlangıçta bir karşılama mesajı içerir.
   const [messages, setMessages] = useState<Message[]>([
     { 
-      text: "Merhaba! Ben Akıllı Yardımcı. Türk mutfağıyla ilgili ne merak ediyorsun? Örneğin, 'bana bir tavuk tarifi öner' diyebilirsin.", 
+      text: CHATBOT_INITIAL_MESSAGE, 
       sender: 'bot' 
     }
   ]);
@@ -66,6 +71,15 @@ const Chatbot: React.FC = () => {
     
     const trimmedInput = inputValue.trim();
     if (!trimmedInput) return; // Boş mesaj gönderimini engelle
+    
+    // Mesaj uzunluğu kontrolü
+    if (trimmedInput.length > MAX_CHATBOT_MESSAGE_LENGTH) {
+      setMessages(prev => [...prev, { 
+        text: `Mesaj çok uzun. Lütfen ${MAX_CHATBOT_MESSAGE_LENGTH} karakterden kısa bir mesaj gönderin.`, 
+        sender: 'bot' 
+      }]);
+      return;
+    }
 
     // 1. Kullanıcının mesajını arayüze ekle (Optimistic Update)
     setMessages(prev => [...prev, { text: trimmedInput, sender: 'user' }]);
@@ -79,8 +93,18 @@ const Chatbot: React.FC = () => {
         // 3. Botun yanıtını mesaj listesine ekle
         setMessages(prev => [...prev, { text: botResponse, sender: 'bot' }]);
     } catch (error) {
-        // Hata durumunda kullanıcıya bilgi ver
-        setMessages(prev => [...prev, { text: "Üzgünüm, bir hata oluştu.", sender: 'bot' }]);
+        // Hata türüne göre uygun mesaj göster
+        let errorMessage = CHATBOT_ERROR_MESSAGE;
+        if (error instanceof Error) {
+            if (error.message.includes('rate') || error.message.includes('429')) {
+                errorMessage = "Çok fazla istek gönderildi. Lütfen biraz sonra tekrar deneyin.";
+            } else if (error.message.includes('network') || error.message.includes('timeout')) {
+                errorMessage = "Ağ bağlantısında bir sorun var. Lütfen internet bağlantınızı kontrol edin.";
+            } else if (error.message.includes('auth') || error.message.includes('401')) {
+                errorMessage = "Sohbet servisi yapılandırılmamış. Lütfen yöneticinize başvurun.";
+            }
+        }
+        setMessages(prev => [...prev, { text: errorMessage, sender: 'bot' }]);
         console.error("Chatbot hatası:", error);
     } finally {
         setIsLoading(false); // İşlem tamamlandı
@@ -173,17 +197,6 @@ const Chatbot: React.FC = () => {
           </button>
         </form>
       </div>
-      
-      {/* Animasyon Stilleri */}
-      <style>{`
-            @keyframes fade-in-up {
-                0% { opacity: 0; transform: translateY(20px) scale(0.95); }
-                100% { opacity: 1; transform: translateY(0) scale(1); }
-            }
-            .animate-fade-in-up {
-                animation: fade-in-up 0.3s ease-out forwards;
-            }
-      `}</style>
     </div>
   );
 };

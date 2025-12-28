@@ -5,6 +5,7 @@ import React, { useContext, useState, useRef, useEffect } from 'react';
 import { type Page } from '../App';
 import { SmartChefIcon, UserCircleIcon } from './icons';
 import { AuthContext } from '../contexts/AuthContext';
+import { NAV_ITEMS, USER_MENU_ITEMS } from '../constants';
 
 /**
  * HeaderProps Arayüzü
@@ -26,6 +27,10 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ activePage, setActivePage, openAuthModal }) => {
   // AuthContext üzerinden global kullanıcı oturum bilgisini alıyoruz.
   const auth = useContext(AuthContext);
+  if (!auth) {
+    console.error("Header: AuthContext is not available. Make sure Header is wrapped with AuthProvider.");
+    return null;
+  }
   
   // Profil menüsü dropdown'unun açık/kapalı durumunu yöneten state.
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -52,11 +57,7 @@ const Header: React.FC<HeaderProps> = ({ activePage, setActivePage, openAuthModa
   }, []);
 
   // Navigasyon menüsünde gösterilecek temel sayfaların listesi.
-  const baseNavItems: { id: Page; label: string }[] = [
-    { id: 'main', label: 'Ana Yemekler' },
-    { id: 'dessert', label: 'Tatlılar' },
-    { id: 'ai', label: 'Akıllı Şef' },
-  ];
+  const baseNavItems = NAV_ITEMS;
   
   /**
    * NavButton Bileşeni (Helper Component)
@@ -126,11 +127,17 @@ const Header: React.FC<HeaderProps> = ({ activePage, setActivePage, openAuthModa
                     {/* Profil Dropdown Menüsü */}
                     {isDropdownOpen && (
                         <div className="absolute right-0 mt-2 w-48 bg-slate-800 rounded-md shadow-lg py-1 border border-slate-700 z-30">
-                           <button onClick={() => handleDropdownLinkClick('favorites')} className="block w-full text-left px-4 py-2 text-sm text-slate-300 hover:bg-slate-700">Favorilerim</button>
-                           <button onClick={() => handleDropdownLinkClick('userRatings')} className="block w-full text-left px-4 py-2 text-sm text-slate-300 hover:bg-slate-700">Değerlendirmelerim</button>
-                           <button onClick={() => handleDropdownLinkClick('userInfo')} className="block w-full text-left px-4 py-2 text-sm text-slate-300 hover:bg-slate-700">Kullanıcı Bilgilerim</button>
+                           {USER_MENU_ITEMS.map((item) => (
+                             <button 
+                               key={item.id}
+                               onClick={() => handleDropdownLinkClick(item.id)} 
+                               className="block w-full text-left px-4 py-2 text-sm text-slate-300 hover:bg-slate-700"
+                             >
+                               {item.label}
+                             </button>
+                           ))}
                            <div className="my-1 border-t border-slate-700"></div>
-                           <button onClick={() => { auth.logout(); setIsDropdownOpen(false); }} className="block w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-slate-700">Çıkış Yap</button>
+                           <button onClick={() => { auth?.logout(); setIsDropdownOpen(false); }} className="block w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-slate-700">Çıkış Yap</button>
                         </div>
                     )}
                  </div>

@@ -216,8 +216,30 @@ export const getRatingsForUser = async (userId: string): Promise<Rating[]> => {
 /**
  * addRating - Yorum Ekleme
  * Veritabanına yeni bir yorum ve puan kaydı ekler.
+ * @param recipeId - Tarifin ID'si
+ * @param userId - Kullanıcının ID'si (UID)
+ * @param username - Kullanıcının adı
+ * @param rating - Verilen puan (1-5)
+ * @param comment - Kullanıcının yorumu
  */
 export const addRating = async (recipeId: number, userId: string, username: string, rating: number, comment: string): Promise<void> => {
+    // Girdi validasyonu
+    if (!userId || typeof userId !== 'string' || userId.length === 0) {
+        throw new Error("Geçersiz kullanıcı kimliği.");
+    }
+    
+    if (rating < 1 || rating > 5 || !Number.isInteger(rating)) {
+        throw new Error("Puan 1 ile 5 arasında bir tam sayı olmalıdır.");
+    }
+    
+    if (comment && typeof comment === 'string' && comment.length > 1000) {
+        throw new Error("Yorum 1000 karakterden uzun olamaz.");
+    }
+    
+    if (typeof recipeId !== 'number' || recipeId < 0) {
+        throw new Error("Geçersiz tarif ID'si.");
+    }
+
     await addDoc(collection(db, 'ratings'), {
         recipeId,
         userId,
@@ -229,11 +251,38 @@ export const addRating = async (recipeId: number, userId: string, username: stri
 };
 
 /**
- * deleteRating - Yorum Silme
+ * deleteRating - Yorum Silme (Yetkilendirme ile)
  * Belirtilen ID'ye sahip yorumu veritabanından siler.
+ * Yalnızca yorum sahibi yorumu silebilir.
+ * @param ratingId - Silinecek yorumun ID'si
+ * @param userId - İsteği yapan kullanıcının ID'si (doğrulama için)
  */
-export const deleteRating = async (ratingId: string): Promise<void> => {
-    await deleteDoc(doc(db, 'ratings', ratingId));
+export const deleteRating = async (ratingId: string, userId: string): Promise<void> => {
+    // Girdi validasyonu
+    if (!ratingId || typeof ratingId !== 'string' || ratingId.length === 0) {
+        throw new Error("Geçersiz yorum ID'si.");
+    }
+    
+    if (!userId || typeof userId !== 'string' || userId.length === 0) {
+        throw new Error("Geçersiz kullanıcı kimliği.");
+    }
+
+    // Yorum kaydını getir ve sahiplik kontrolü yap
+    const ratingDocRef = doc(db, 'ratings', ratingId);
+    const ratingDoc = await getDoc(ratingDocRef);
+    
+    if (!ratingDoc.exists()) {
+        throw new Error("Yorum bulunamadı.");
+    }
+    
+    const ratingData = ratingDoc.data();
+    
+    // Yalnızca yorum sahibi silebilir
+    if (ratingData.userId !== userId) {
+        throw new Error("Bu yorumu silmeye yetkiniz yok. Yalnızca kendi yorumlarınızı silebilirsiniz.");
+    }
+    
+    await deleteDoc(ratingDocRef);
 };
 
 // --- Tarif Veri İşlemleri (Recipe Data Operations) ---
@@ -294,14 +343,29 @@ export const getRecipeDocById = async (id: number): Promise<Recipe | null> => {
 /**
  * apiSendPasswordResetEmail - Şifre Sıfırlama E-postası
  * Kullanıcının e-posta adresine şifre yenileme bağlantısı gönderir.
+ * @param email - Şifre sıfırlanacak e-posta adresi
  */
 export const apiSendPasswordResetEmail = async (email: string): Promise<void> => {
+    // E-posta validasyonu
+    if (!email || typeof email !== 'string') {
+        throw new Error('Geçerli bir e-posta adresi girin.');
+    }
+    
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        throw new Error('Geçersiz e-posta formatı.');
+    }
+
     try {
         await sendPasswordResetEmail(auth, email);
     } catch (error: any) {
         console.error("Şifre sıfırlama e-postası gönderilemedi:", error);
         if (error.code === 'auth/user-not-found') {
             throw new Error('Bu e-posta adresine sahip bir kullanıcı bulunamadı.');
+        } else if (error.code === 'auth/invalid-email') {
+            throw new Error('Geçersiz e-posta adresi.');
+        } else if (error.code === 'auth/too-many-requests') {
+            throw new Error('Çok fazla istek gönderildi. Lütfen daha sonra tekrar deneyin.');
         }
         throw new Error('Şifre sıfırlama e-postası gönderilirken bir hata oluştu.');
     }

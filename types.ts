@@ -58,7 +58,6 @@ export interface User {
   id: string; // Firebase Authentication tarafından atanan benzersiz UID.
   username: string; // Kullanıcının uygulamada görünen adı.
   email: string; // Kullanıcının kayıtlı e-posta adresi.
-  password: string; // Kullanıcı şifresi (Not: İstemci tarafında işlenirken güvenlik protokollerine dikkat edilmelidir).
   favorites: number[]; // Kullanıcının favoriye eklediği tariflerin ID listesi (Relational Reference).
 }
 

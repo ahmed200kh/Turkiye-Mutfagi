@@ -5,9 +5,27 @@
 import { GoogleGenAI, Type, Chat } from "@google/genai";
 import { type AiRecipeSuggestion } from '../types';
 
-// Not: Güvenlik ve yapılandırma gereği, API anahtarı çevresel değişkenlerden (environment variables) alınır.
-// Bu anahtar, Google Cloud projesine yetkili erişim sağlar.
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// Not: API anahtarı ortam değişkenlerinden (environment variables) dinamik olarak yüklenir.
+// Frontend'e asla expose edilmemelidir. Backend proxy veya environment değişken kullanılmalıdır.
+const getAiInstance = () => {
+  // Vite frontend ortamında VITE_ ile başlayan değişkenleri kullan
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+  
+  if (!apiKey) {
+    throw new Error('Gemini API anahtarı yapılandırılmadı. Lütfen ortam değişkenlerini kontrol edin.');
+  }
+  
+  return new GoogleGenAI({ apiKey });
+};
+
+let aiInstance: any = null;
+
+const getAi = () => {
+  if (!aiInstance) {
+    aiInstance = getAiInstance();
+  }
+  return aiInstance;
+};
 
 /**
  * getRecipeSuggestions - Akıllı Tarif Öneri Motoru
@@ -81,6 +99,7 @@ export const getRecipeSuggestions = async (
 
   try {
     // API İsteği: Yapılandırılmış model ve prompt ile içerik üretimi başlatılır.
+    const ai = getAi();
     const response = await ai.models.generateContent({
       model: model,
       contents: prompt,
@@ -94,12 +113,25 @@ export const getRecipeSuggestions = async (
     // API Yanıtının İşlenmesi
     const text = response.text;
     
-    // JSON Ayrıştırma (Parsing)
-    const suggestions: AiRecipeSuggestion[] = JSON.parse(text);
+    // JSON Ayrıştırma (Parsing) ve Validasyon
+    let suggestions: AiRecipeSuggestion[];
+    try {
+      suggestions = JSON.parse(text);
+    } catch (parseError) {
+      console.error("JSON ayrıştırma hatası:", parseError);
+      throw new Error("Yapay zekanın yanıtı geçersiz JSON formatında.");
+    }
 
     // Tip Güvenliği Kontrolü: Dönen verinin beklenen dizi formatında olup olmadığı doğrulanır.
     if (!Array.isArray(suggestions)) {
         throw new Error("API'den beklenen formatta bir dizi dönmedi.");
+    }
+    
+    // Her tarifin gerekli alanlarına sahip olduğunu kontrol et
+    for (const recipe of suggestions) {
+      if (!recipe.recipeName || !recipe.description || !Array.isArray(recipe.ingredients) || !Array.isArray(recipe.instructions)) {
+        throw new Error("Tarifin eksik veya hatalı alanları var.");
+      }
     }
     
     return suggestions;
@@ -109,10 +141,17 @@ export const getRecipeSuggestions = async (
     
     // Hata Yönetimi: Kullanıcıya anlamlı bir hata mesajı iletmek için hata yeniden fırlatılır.
     if (error instanceof Error) {
+        // Rate limiting veya token limitine karşı yardımcı mesajlar
+        if (error.message.includes('429') || error.message.includes('rate')) {
+          throw new Error("Çok fazla istek gönderildi. Lütfen biraz sonra tekrar deneyin.");
+        }
+        if (error.message.includes('401') || error.message.includes('authentication')) {
+          throw new Error("API anahtarı geçersiz veya süresi dolmuş.");
+        }
         throw new Error(`Tarif önerileri alınamadı: ${error.message}`);
     }
     // Bilinmeyen hata durumları için genel mesaj
-    throw new Error("Tarif önerileri alınırken bilinmeyen bir sorun oluştu. Lütfen API anahtarınızı kontrol edin.");
+    throw new Error("Tarif önerileri alınırken bilinmeyen bir sorun oluştu. Lütfen API anahtarınızı ve bağlantınızı kontrol edin.");
   }
 };
 
@@ -122,13 +161,16 @@ export const getRecipeSuggestions = async (
 // Chat Oturumu Başlatma:
 // Süreklilik arz eden bir diyalog (sohbet) için model yapılandırılır.
 // 'systemInstruction' ile modele bir "Persona" (Kişilik) atanır.
-const chatbot: Chat = ai.chats.create({
-  model: 'gemini-2.5-flash',
-  config: {
-    // Sistem Talimatı: Modelin rolünü, uzmanlık alanını ve iletişim tonunu belirler.
-    systemInstruction: 'Sen Türk mutfağı konusunda uzman, yardımsever bir aşçısın. Adın "Akıllı Yardımcı". Kullanıcılara tarifler bulmalarında, yemek pişirme teknikleri hakkında bilgi vermede ve malzemeler hakkında sorularını yanıtlamada yardımcı ol. Cevapların samimi, anlaşılır ve teşvik edici olsun. Cevaplarını markdown formatında verme, düz metin kullan.',
-  },
-});
+const getChatbot = () => {
+  const ai = getAi();
+  return ai.chats.create({
+    model: 'gemini-2.5-flash',
+    config: {
+      // Sistem Talimatı: Modelin rolünü, uzmanlık alanını ve iletişim tonunu belirler.
+      systemInstruction: 'Sen Türk mutfağı konusunda uzman, yardımsever bir aşçısın. Adın "Akıllı Yardımcı". Kullanıcılara tarifler bulmalarında, yemek pişirme teknikleri hakkında bilgi vermede ve malzemeler hakkında sorularını yanıtlamada yardımcı ol. Cevapların samimi, anlaşılır ve teşvik edici olsun. Cevaplarını markdown formatında verme, düz metin kullan.',
+    },
+  });
+};
 
 /**
  * sendMessageToBot - Mesaj Gönderimi
@@ -137,12 +179,31 @@ const chatbot: Chat = ai.chats.create({
  * @returns AI modelinden gelen metin yanıtı.
  */
 export const sendMessageToBot = async (message: string): Promise<string> => {
+  // Girdi validasyonu
+  if (!message || typeof message !== 'string' || message.trim().length === 0) {
+    throw new Error("Mesaj boş olamaz.");
+  }
+
+  // Mesaj uzunluğu kontrolü (çok uzun mesajları engelle)
+  if (message.length > 2000) {
+    throw new Error("Mesaj çok uzun. Lütfen 2000 karakterden kısa bir mesaj gönderins.");
+  }
+
   try {
     // Mevcut sohbet geçmişini koruyarak yeni mesajı gönder.
+    const chatbot = getChatbot();
     const response = await chatbot.sendMessage({ message: message });
     return response.text;
   } catch (error) {
     console.error("Chatbot mesaj gönderimi sırasında hata:", error);
-    return "Üzgünüm, şu anda bir sorunla karşılaştım. Lütfen daha sonra tekrar deneyin.";
-  }
-};
+    
+    if (error instanceof Error) {
+      if (error.message.includes('429') || error.message.includes('rate')) {
+        return "Çok fazla istek gönderildi. Lütfen biraz sonra tekrar deneyin.";
+      }
+      if (error.message.includes('401') || error.message.includes('authentication')) {
+        return "Sohbet servisi şu anda kullanılamıyor. Lütfen daha sonra deneyin.";
+      }
+    }
+    return "Üzgünüm, şu anda bir sorunla karşılaştım. Lütfen daha sonra tekrar deneyin.";}
+  };

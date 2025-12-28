@@ -11,6 +11,7 @@ import AuthModal from './components/AuthModal';
 import FavoritesPage from './components/FavoritesPage';
 import UserInfoPage from './components/UserInfoPage';
 import UserRatingsPage from './components/UserRatingsPage';
+import ErrorBoundary from './components/ErrorBoundary';
 import { AuthProvider } from './contexts/AuthContext';
 import { type Recipe } from './types';
 import RecipeModal from './components/RecipeModal';
@@ -119,13 +120,15 @@ const AppContent: React.FC = () => {
  * App Bileşeni (Entry Point Wrapper)
  * -----------------------------------------------------------------------
  * Tüm uygulamayı sarmalar ve gerekli Context Sağlayıcılarını (Providers) başlatır.
- * Burada AuthProvider kullanılarak, kimlik doğrulama durumu tüm alt bileşenlere dağıtılır.
+ * ErrorBoundary ile hata yönetimi, AuthProvider ile kimlik doğrulama durumu sağlanır.
  */
 const App: React.FC = () => {
   return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
+    </ErrorBoundary>
   );
 };
 

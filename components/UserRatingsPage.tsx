@@ -98,12 +98,15 @@ const UserRatingsPage: React.FC<UserRatingsPageProps> = ({ onSelectRecipe }) => 
         // Animasyonun tamamlanması için kısa bir süre bekle ve sonra API isteğini gönder
         setTimeout(async () => {
             try {
-                await api.deleteRating(ratingId);
+                if (!auth?.user?.uid) {
+                    throw new Error("Kullanıcı kimliği bulunamadı.");
+                }
+                await api.deleteRating(ratingId, auth.user.uid);
                 // Başarılı olursa state'den tamamen kaldır
                 setRatings(currentRatings => currentRatings.filter(r => r.id !== ratingId));
             } catch (error) {
                 console.error("Yorum silinemedi:", error);
-                alert("Yorum silinirken bir hata oluştu.");
+                alert(error instanceof Error ? error.message : "Yorum silinirken bir hata oluştu.");
                 // Hata durumunda işlemi geri al (Rollback)
                 setRatings(currentRatings =>
                     currentRatings.map(r => {

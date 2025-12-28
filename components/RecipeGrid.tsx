@@ -8,6 +8,13 @@ import RecipeCard from './RecipeCard';
 import { SearchIcon } from './icons';
 import * as api from '../services/apiService';
 import Spinner from './Spinner';
+import {
+  RECIPES_INITIAL_VISIBLE_COUNT,
+  RECIPES_LOAD_MORE_COUNT,
+  MAX_TIME_FILTER_MINUTES,
+  DIFFICULTY_LEVELS,
+  COST_LEVELS,
+} from '../constants';
 
 /**
  * RecipeGridProps Arayüzü
@@ -31,10 +38,10 @@ const RecipeGrid: React.FC<RecipeGridProps> = ({ type, recipeList, onSelectRecip
   // Filtreleme kriterleri (Zorluk, Maliyet ve Maksimum Süre)
   const [difficultyFilter, setDifficultyFilter] = useState<Difficulty | 'Tümü'>('Tümü');
   const [costFilter, setCostFilter] = useState<Cost | 'Tümü'>('Tümü');
-  const [maxTime, setMaxTime] = useState(240); // Varsayılan maksimum süre: 240 dakika
+  const [maxTime, setMaxTime] = useState(MAX_TIME_FILTER_MINUTES);
   
   // Sayfalama (Pagination) yerine "Daha Fazla Yükle" mantığı için görünür eleman sayısı.
-  const [visibleCount, setVisibleCount] = useState(10);
+  const [visibleCount, setVisibleCount] = useState(RECIPES_INITIAL_VISIBLE_COUNT);
   
   // Firebase veritabanından çekilen dinamik tarif verilerini tutar.
   const [fetchedRecipes, setFetchedRecipes] = useState<Recipe[]>([]);
@@ -43,8 +50,8 @@ const RecipeGrid: React.FC<RecipeGridProps> = ({ type, recipeList, onSelectRecip
   const [isLoading, setIsLoading] = useState(false);
 
   // Filtre butonları için sabit seçenekler listesi.
-  const difficultyLevels: (Difficulty | 'Tümü')[] = ['Tümü', 'Kolay', 'Orta', 'Zor'];
-  const costLevels: (Cost | 'Tümü')[] = ['Tümü', 'Ucuz', 'Orta', 'Pahalı'];
+  const difficultyLevels: (Difficulty | 'Tümü')[] = DIFFICULTY_LEVELS as unknown as (Difficulty | 'Tümü')[];
+  const costLevels: (Cost | 'Tümü')[] = COST_LEVELS as unknown as (Cost | 'Tümü')[];
 
   /**
    * useEffect - Veri Çekme İşlemi
@@ -113,13 +120,13 @@ const RecipeGrid: React.FC<RecipeGridProps> = ({ type, recipeList, onSelectRecip
   }, [initialRecipes, difficultyFilter, costFilter, searchTerm, maxTime, type]);
 
   // Filtreler değiştiğinde görünür eleman sayısını sıfırla (başa dön).
-  useEffect(() => setVisibleCount(10), [type, difficultyFilter, costFilter, searchTerm, maxTime]);
+  useEffect(() => setVisibleCount(RECIPES_INITIAL_VISIBLE_COUNT), [type, difficultyFilter, costFilter, searchTerm, maxTime]);
   
   // Filtrelenmiş listeden sadece görünür sayısı kadarını al (Lazy Loading benzeri yapı).
   const recipesToDisplay = filteredRecipes.slice(0, visibleCount);
   
   // "Daha Fazla Yükle" butonuna tıklandığında görünür sayıyı artır.
-  const handleLoadMore = () => setVisibleCount(prev => prev + 10);
+  const handleLoadMore = () => setVisibleCount(prev => prev + RECIPES_LOAD_MORE_COUNT);
 
   // Yüklenme durumunda Spinner göster.
   if (isLoading && type !== 'favorites') {
@@ -188,7 +195,7 @@ const RecipeGrid: React.FC<RecipeGridProps> = ({ type, recipeList, onSelectRecip
                     <h3 className="text-sm font-semibold text-slate-300 mb-2">Maks. Süre: <span className="text-red-500">{maxTime} dk</span></h3>
                     <input
                       type="range"
-                      min="10" max="240" step="5"
+                      min="10" max={MAX_TIME_FILTER_MINUTES} step="5"
                       value={maxTime}
                       onChange={(e) => setMaxTime(Number(e.target.value))}
                       className="w-full h-2 bg-slate-600 rounded-lg accent-red-600 cursor-pointer"
