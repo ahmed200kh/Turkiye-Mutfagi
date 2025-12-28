@@ -15,42 +15,42 @@ const Footer: React.FC = () => {
   return (
     // 'mt-auto': İçerik az olsa bile footer'ın sayfanın en altına itilmesini sağlar.
     <footer className="bg-slate-900 border-t border-slate-800 text-slate-400 mt-auto">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="container mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 py-8 sm:py-12">
         
         {/* Responsive Grid Yapısı: Mobilde tek sütun, orta ve üstü ekranlarda 3 sütun */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 lg:gap-10">
           
           {/* 1. Sütun: Proje Tanıtım Metni (Biz Kimiz?) */}
           <div className="md:col-span-1">
-            <h3 className="text-lg font-bold text-white mb-4">Biz Kimiz?</h3>
-            <p className="text-sm leading-relaxed">
+            <h3 className="text-base sm:text-lg font-bold text-white mb-3 sm:mb-4">Biz Kimiz?</h3>
+            <p className="text-xs sm:text-sm leading-relaxed">
               Türkiye Mutfağı - Akıllı Tarif Keşif Sistemi olarak, zengin Türk mutfağını modern teknolojiyle buluşturarak herkesin kolayca erişebileceği bir platform sunmayı amaçlıyoruz.
             </p>
           </div>
 
           {/* 2. Sütun: Sosyal Medya İkonları ve Linkleri */}
           <div className="md:col-span-1">
-            <h3 className="text-lg font-bold text-white mb-4">Hızlı Bağlantılar</h3>
-            <div className="flex items-center space-x-6">
+            <h3 className="text-base sm:text-lg font-bold text-white mb-3 sm:mb-4">Hızlı Bağlantılar</h3>
+            <div className="flex items-center space-x-4 sm:space-x-6">
               {/* Instagram Linki */}
               <a href="#" className="hover:text-white transition-colors" aria-label="Instagram">
-                <InstagramIcon className="w-6 h-6" />
+                <InstagramIcon className="w-5 sm:w-6 h-5 sm:h-6" />
               </a>
               {/* X (Twitter) Linki */}
               <a href="#" className="hover:text-white transition-colors" aria-label="X">
-                <XSocialIcon className="w-6 h-6" />
+                <XSocialIcon className="w-5 sm:w-6 h-5 sm:h-6" />
               </a>
               {/* Facebook Linki */}
               <a href="#" className="hover:text-white transition-colors" aria-label="Facebook">
-                <FacebookIcon className="w-6 h-6" />
+                <FacebookIcon className="w-5 sm:w-6 h-5 sm:h-6" />
               </a>
             </div>
           </div>
 
           {/* 3. Sütun: İletişim Bilgileri (Mailto Linki) */}
           <div className="md:col-span-1">
-            <h3 className="text-lg font-bold text-white mb-4">Bizimle İletişime Geçin</h3>
-            <p className="text-sm">
+            <h3 className="text-base sm:text-lg font-bold text-white mb-3 sm:mb-4">Bizimle İletişime Geçin</h3>
+            <p className="text-xs sm:text-sm break-words">
               Öneri ve görüşleriniz için: <a href="mailto:info@turkiyemutfagi.com" className="text-red-500 hover:underline">info@turkiyemutfagi.com</a>
             </p>
           </div>
@@ -59,7 +59,7 @@ const Footer: React.FC = () => {
 
       {/* Alt Telif Hakkı (Copyright) Çubuğu */}
       <div className="border-t border-slate-800">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div className="container mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 py-3 sm:py-4">
           <p className="text-center text-xs">
             © 2025 Türkiye Mutfağı. Tüm hakları saklıdır.
           </p>

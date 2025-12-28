@@ -56,8 +56,8 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe, onSelect }) => {
       onClick={() => onSelect(recipe)} // Karta tıklandığında detayları aç.
     >
       {/* Görsel ve Üst Katman Alanı */}
-      <div className="relative">
-        <img className="w-full h-48 object-cover" src={recipe.image} alt={recipe.name} />
+      <div className="relative w-full h-40 sm:h-48">
+        <img className="w-full h-full object-cover" src={recipe.image} alt={recipe.name} />
         
         {/* Gradyan Katmanı: Yazıların okunabilirliğini artırmak için görsel üzerine eklenen karartma efekti. */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent group-hover:from-black/80 transition-all duration-300"></div>
@@ -66,36 +66,36 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe, onSelect }) => {
         <div className="absolute top-2 right-2">
             <button 
                 onClick={handleFavoriteClick} 
-                className="w-10 h-10 rounded-full bg-black/50 flex items-center justify-center text-white hover:bg-red-600/80 transition-colors"
+                className="w-8 sm:w-10 h-8 sm:h-10 rounded-full bg-black/50 flex items-center justify-center text-white hover:bg-red-600/80 transition-colors"
                 aria-label="Favorilere Ekle"
             >
                 {/* SVG Kalp İkonu: Duruma göre içi dolu veya boş render edilir */}
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill={isFavorite ? 'currentColor' : 'none'} viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 sm:h-6 w-5 sm:w-6" fill={isFavorite ? 'currentColor' : 'none'} viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 20.364l-7.682-7.682a4.5 4.5 0 010-6.364z" />
                 </svg>
             </button>
         </div>
         
         {/* Tarif Başlığı (Sol Alt Köşe) */}
-        <div className="absolute bottom-0 left-0 p-4">
-             <h3 className="text-white text-xl font-bold tracking-wide">{recipe.name}</h3>
+        <div className="absolute bottom-0 left-0 p-3 sm:p-4 right-0">
+             <h3 className="text-white text-lg sm:text-xl font-bold tracking-wide line-clamp-2">{recipe.name}</h3>
         </div>
       </div>
 
       {/* Alt Bilgi Alanı: Süre, Zorluk ve Maliyet */}
-      <div className="p-4 bg-slate-800 mt-auto">
-        <div className="flex justify-between items-center text-sm text-slate-400">
-          <div className="flex items-center gap-1.5">
-            <ClockIcon className="w-4 h-4 text-red-500" />
-            <span>{recipe.time} dk</span>
+      <div className="p-3 sm:p-4 bg-slate-800 mt-auto">
+        <div className="flex justify-between items-center text-xs sm:text-sm text-slate-400 gap-2">
+          <div className="flex items-center gap-1">
+            <ClockIcon className="w-4 h-4 text-red-500 flex-shrink-0" />
+            <span className="truncate">{recipe.time} dk</span>
           </div>
-          <div className="flex items-center gap-1.5">
-            <ChartBarIcon className="w-4 h-4 text-red-500" />
-            <span>{recipe.difficulty}</span>
+          <div className="flex items-center gap-1">
+            <ChartBarIcon className="w-4 h-4 text-red-500 flex-shrink-0" />
+            <span className="truncate">{recipe.difficulty}</span>
           </div>
-          <div className="flex items-center gap-1.5">
-            <CurrencyDollarIcon className="w-4 h-4 text-red-500" />
-            <span>{recipe.cost}</span>
+          <div className="flex items-center gap-1">
+            <CurrencyDollarIcon className="w-4 h-4 text-red-500 flex-shrink-0" />
+            <span className="truncate">{recipe.cost}</span>
           </div>
         </div>
       </div>

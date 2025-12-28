@@ -66,13 +66,13 @@ const FavoritesPage: React.FC<FavoritesPageProps> = ({ onSelectRecipe }) => {
         }
     }, [auth?.user, auth?.user?.favorites]); // Bağımlılık dizisi (Dependency Array)
 
-    // --- Yüklenme Arayüzü (Loading UI) ---
+    // --- Hataları kontrol et(Loading UI) ---
     // Hem Auth kontrolü hem de veri çekme işlemi sırasında Spinner gösterilir
     if (auth?.loading) {
         return (
-          <div className="pt-20">
+          <div className="pt-12 sm:pt-20">
             <Spinner />
-            <p className="text-center mt-4 text-slate-400">Kullanıcı doğrulaması yapılıyor...</p>
+            <p className="text-center mt-4 text-slate-400 text-sm sm:text-base">Kullanıcı doğrulaması yapılıyor...</p>
           </div>
         );
     }
@@ -81,9 +81,9 @@ const FavoritesPage: React.FC<FavoritesPageProps> = ({ onSelectRecipe }) => {
     // Kullanıcı giriş yapmamışsa uyarı mesajı göster
     if (!auth?.user) {
         return (
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
-                <h2 className="text-2xl font-bold text-white mb-4">Favorilerinizi Görüntülemek İçin Giriş Yapın</h2>
-                <p className="text-slate-400">Beğendiğiniz tarifleri kaydedip onlara buradan kolayca ulaşabilirsiniz.</p>
+            <div className="container mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 py-12 sm:py-16 text-center">
+                <h2 className="text-xl sm:text-2xl font-bold text-white mb-4">Favorilerinizi Görüntülemek İçin Giriş Yapın</h2>
+                <p className="text-slate-400 text-sm sm:text-base">Beğendiğiniz tarifleri kaydedip onlara buradan kolayca ulaşabilirsiniz.</p>
             </div>
         );
     }
@@ -91,10 +91,10 @@ const FavoritesPage: React.FC<FavoritesPageProps> = ({ onSelectRecipe }) => {
     // --- Ana Render ---
     return (
         <div>
-            <div className="bg-slate-800 py-10">
-                <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                    <h1 className="text-4xl font-extrabold text-white tracking-tight">Favori Tariflerim</h1>
-                    <p className="mt-2 text-lg text-slate-300">Kaydettiğiniz lezzetler bir arada.</p>
+            <div className="bg-slate-800 py-6 sm:py-10">
+                <div className="container mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 text-center">
+                    <h1 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">Favori Tariflerim</h1>
+                    <p className="mt-2 text-sm sm:text-lg text-slate-300">Kaydettiğiniz lezzetler bir arada.</p>
                 </div>
             </div>
             
@@ -102,16 +102,16 @@ const FavoritesPage: React.FC<FavoritesPageProps> = ({ onSelectRecipe }) => {
                 Burada 'recipeList' prop'u üzerinden Firestore'dan çektiğimiz veriyi (favoriteRecipes) aktarıyoruz.
             */}
             {isLoading ? (
-                <div className="pt-20 flex justify-center">
+                <div className="pt-12 sm:pt-20 flex justify-center">
                     <Spinner />
                 </div>
             ) : favoriteRecipes.length > 0 ? (
                 <RecipeGrid type="favorites" recipeList={favoriteRecipes} onSelectRecipe={onSelectRecipe} />
             ) : (
-                <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
-                    <div className="text-center bg-slate-800 rounded-lg p-12 border border-slate-700">
-                        <h2 className="text-xl font-semibold text-white mb-2">Henüz Favori Eklememişsiniz</h2>
-                        <p className="text-slate-400">Beğendiğiniz tarifleri favorilere ekleyerek buradan erişebilirsiniz.</p>
+                <div className="container mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 py-12 sm:py-16">
+                    <div className="text-center bg-slate-800 rounded-lg p-8 sm:p-12 border border-slate-700">
+                        <h2 className="text-lg sm:text-xl font-semibold text-white mb-2">Henüz Favori Eklememişsiniz</h2>
+                        <p className="text-slate-400 text-sm sm:text-base">Beğendiğiniz tarifleri favorilere ekleyerek buradan erişebilirsiniz.</p>
                     </div>
                 </div>
             )}

@@ -7,6 +7,19 @@ import { SmartChefIcon, UserCircleIcon } from './icons';
 import { AuthContext } from '../contexts/AuthContext';
 import { NAV_ITEMS, USER_MENU_ITEMS } from '../constants';
 
+// Mobile menu icon components
+const MenuIcon: React.FC<{ className?: string }> = ({ className }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+  </svg>
+);
+
+const CloseIcon: React.FC<{ className?: string }> = ({ className }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+  </svg>
+);
+
 /**
  * HeaderProps Arayüzü
  * Bileşene dışarıdan aktarılan özellikleri tanımlar.
@@ -34,6 +47,9 @@ const Header: React.FC<HeaderProps> = ({ activePage, setActivePage, openAuthModa
   
   // Profil menüsü dropdown'unun açık/kapalı durumunu yöneten state.
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  
+  // Mobil menü açık/kapalı durumu
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
   // Dropdown elementine referans vererek dış tıklamaları (click outside) tespit etmek için kullanılır.
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -87,18 +103,24 @@ const Header: React.FC<HeaderProps> = ({ activePage, setActivePage, openAuthModa
     setIsDropdownOpen(false); // Seçim yapıldığında menüyü kapat.
   };
 
+  // Mobil menüde sayfa seçildiğinde çalışır
+  const handleMobileNavClick = (page: Page) => {
+    setActivePage(page);
+    setIsMobileMenuOpen(false); // Seçim yapıldığında menüyü kapat
+  };
+
   return (
     // Sticky pozisyonlandırma ile sayfa kaydırılsa bile üstte sabit kalan header.
     <header className="bg-slate-900/70 backdrop-blur-md shadow-lg sticky top-0 z-20 text-white">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
         
         {/* Sol Taraf: Logo ve Navigasyon Linkleri */}
-        <div className="flex items-center gap-8">
+        <div className="flex items-center gap-4 sm:gap-8 flex-1">
             <div>
-              <h1 className="text-2xl font-bold tracking-tight">
+              <h1 className="text-lg sm:text-2xl font-bold tracking-tight">
                 Türkiye <span className="text-red-500">Mutfağı</span>
               </h1>
-              <p className="text-xs text-slate-400 mt-0.5">Akıllı Tarif Keşif Sistemi</p>
+              <p className="text-xs text-slate-400 mt-0.5 hidden sm:block">Akıllı Tarif Keşif Sistemi</p>
             </div>
             
             {/* Desktop Görünümü için Navigasyon */}
@@ -111,15 +133,27 @@ const Header: React.FC<HeaderProps> = ({ activePage, setActivePage, openAuthModa
 
         {/* Sağ Taraf: Kullanıcı İşlemleri (Giriş/Kayıt veya Profil Menüsü) */}
         <div className="flex items-center gap-2">
+            {/* Mobil Menu Butonu (MD'nin altında görünür) */}
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="md:hidden p-2 rounded-md text-slate-300 hover:bg-slate-700 hover:text-white"
+            >
+              {isMobileMenuOpen ? (
+                <CloseIcon className="w-6 h-6" />
+              ) : (
+                <MenuIcon className="w-6 h-6" />
+              )}
+            </button>
+
             {auth?.user ? (
                  // --- Oturum Açmış Kullanıcı Görünümü ---
                  <div className="relative" ref={dropdownRef}>
                     <button
                         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                        className="flex items-center gap-2 px-4 py-2 rounded-md text-sm font-semibold transition-all duration-300 text-slate-300 hover:bg-slate-700 hover:text-white"
+                        className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-md text-sm font-semibold transition-all duration-300 text-slate-300 hover:bg-slate-700 hover:text-white"
                     >
                         <UserCircleIcon className="w-5 h-5" />
-                        <span>Hesabım</span>
+                        <span className="hidden sm:inline">Hesabım</span>
                         {/* Dropdown ok ikonu, açık/kapalı durumuna göre döner */}
                         <svg className={`w-4 h-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
                     </button>
@@ -146,20 +180,52 @@ const Header: React.FC<HeaderProps> = ({ activePage, setActivePage, openAuthModa
                 <>
                     <button
                         onClick={() => openAuthModal('login')}
-                        className="px-4 py-2 rounded-md text-sm font-semibold transition-all duration-300 text-slate-300 hover:bg-slate-700 hover:text-white"
+                        className="hidden sm:block px-3 sm:px-4 py-2 rounded-md text-sm font-semibold transition-all duration-300 text-slate-300 hover:bg-slate-700 hover:text-white"
                     >
                         Giriş Yap
                     </button>
                     <button
                         onClick={() => openAuthModal('signup')}
-                        className="px-4 py-2 rounded-md text-sm font-semibold transition-all duration-300 bg-red-600 text-white hover:bg-red-700"
+                        className="px-3 sm:px-4 py-2 rounded-md text-xs sm:text-sm font-semibold transition-all duration-300 bg-red-600 text-white hover:bg-red-700"
                     >
-                        Kayıt Ol
+                        Kayıt
                     </button>
                 </>
             )}
         </div>
       </div>
+
+      {/* Mobil Navigasyon Menüsü */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden bg-slate-800 border-t border-slate-700 p-4 space-y-2">
+          {baseNavItems.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => handleMobileNavClick(item.id)}
+              className={`w-full text-left px-4 py-2.5 rounded-md text-sm font-semibold transition-all duration-300 flex items-center gap-2 ${
+                activePage === item.id
+                  ? 'bg-red-600 text-white shadow-md'
+                  : 'text-slate-300 hover:bg-slate-700 hover:text-white'
+              }`}
+            >
+              {item.id === 'ai' && <SmartChefIcon className="w-5 h-5" />}
+              {item.label}
+            </button>
+          ))}
+          
+          {!auth?.user && (
+            <>
+              <div className="my-2 border-t border-slate-700"></div>
+              <button
+                onClick={() => { openAuthModal('login'); setIsMobileMenuOpen(false); }}
+                className="w-full text-left px-4 py-2.5 rounded-md text-sm font-semibold text-slate-300 hover:bg-slate-700 hover:text-white transition-all duration-300"
+              >
+                Giriş Yap
+              </button>
+            </>
+          )}
+        </div>
+      )}
     </header>
   );
 };
