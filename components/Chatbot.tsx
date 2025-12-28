@@ -155,8 +155,8 @@ const Chatbot: React.FC = () => {
         {messages.map((msg, index) => (
           <div key={index} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div className={`max-w-xs px-4 py-2 rounded-2xl ${msg.sender === 'user' ? 'bg-red-600 text-white rounded-br-lg' : 'bg-slate-700 text-slate-200 rounded-bl-lg'}`}>
-              {/* HTML içeriğini güvenli bir şekilde render et (Satır sonları için) */}
-              <p className="text-sm" dangerouslySetInnerHTML={{ __html: msg.text.replace(/\n/g, '<br />') }} />
+              {/*Yeni satırları destekleyerek metin içeriğini güvenli bir şekilde saklayın.*/}
+              <p className="text-sm whitespace-pre-wrap">{msg.text}</p>
             </div>
           </div>
         ))}

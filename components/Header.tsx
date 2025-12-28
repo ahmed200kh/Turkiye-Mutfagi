@@ -28,8 +28,8 @@ const Header: React.FC<HeaderProps> = ({ activePage, setActivePage, openAuthModa
   // AuthContext üzerinden global kullanıcı oturum bilgisini alıyoruz.
   const auth = useContext(AuthContext);
   if (!auth) {
-    console.error("Header: AuthContext is not available. Make sure Header is wrapped with AuthProvider.");
-    return null;
+    console.error("Header: AuthContext kullanılamıyor. Header bileşeninin AuthProvider ile sarmalı olduğundan emin olun.");
+    return <div></div>;
   }
   
   // Profil menüsü dropdown'unun açık/kapalı durumunu yöneten state.

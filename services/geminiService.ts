@@ -161,15 +161,20 @@ export const getRecipeSuggestions = async (
 // Chat Oturumu Başlatma:
 // Süreklilik arz eden bir diyalog (sohbet) için model yapılandırılır.
 // 'systemInstruction' ile modele bir "Persona" (Kişilik) atanır.
+let chatbotInstance: any = null;
+
 const getChatbot = () => {
-  const ai = getAi();
-  return ai.chats.create({
-    model: 'gemini-2.5-flash',
-    config: {
-      // Sistem Talimatı: Modelin rolünü, uzmanlık alanını ve iletişim tonunu belirler.
-      systemInstruction: 'Sen Türk mutfağı konusunda uzman, yardımsever bir aşçısın. Adın "Akıllı Yardımcı". Kullanıcılara tarifler bulmalarında, yemek pişirme teknikleri hakkında bilgi vermede ve malzemeler hakkında sorularını yanıtlamada yardımcı ol. Cevapların samimi, anlaşılır ve teşvik edici olsun. Cevaplarını markdown formatında verme, düz metin kullan.',
-    },
-  });
+  if (!chatbotInstance) {
+    const ai = getAi();
+    chatbotInstance = ai.chats.create({
+      model: 'gemini-2.5-flash',
+      config: {
+        // Sistem Talimatı: Modelin rolünü, uzmanlık alanını ve iletişim tonunu belirler.
+        systemInstruction: 'Sen Türk mutfağı konusunda uzman, yardımsever bir aşçısın. Adın "Akıllı Yardımcı". Kullanıcılara tarifler bulmalarında, yemek pişirme teknikleri hakkında bilgi vermede ve malzemeler hakkında sorularını yanıtlamada yardımcı ol. Cevapların samimi, anlaşılır ve teşvik edici olsun. Cevaplarını markdown formatında verme, düz metin kullan.',
+      },
+    });
+  }
+  return chatbotInstance;
 };
 
 /**
@@ -186,7 +191,7 @@ export const sendMessageToBot = async (message: string): Promise<string> => {
 
   // Mesaj uzunluğu kontrolü (çok uzun mesajları engelle)
   if (message.length > 2000) {
-    throw new Error("Mesaj çok uzun. Lütfen 2000 karakterden kısa bir mesaj gönderins.");
+    throw new Error("Mesaj çok uzun. Lütfen 2000 karakterden kısa bir mesaj gönderin.");
   }
 
   try {
