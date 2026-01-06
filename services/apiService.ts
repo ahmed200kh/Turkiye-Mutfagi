@@ -332,7 +332,6 @@ export const getRecipeDocById = async (id: number): Promise<Recipe | null> => {
     if (docSnap.exists()) {
         return docSnap.data() as Recipe;
     } else {
-        console.warn(`Recipe with id ${id} not found in Firestore.`);
         return null;
     }
 };
@@ -368,5 +367,79 @@ export const apiSendPasswordResetEmail = async (email: string): Promise<void> =>
             throw new Error('Çok fazla istek gönderildi. Lütfen daha sonra tekrar deneyin.');
         }
         throw new Error('Şifre sıfırlama e-postası gönderilirken bir hata oluştu.');
+    }
+};
+
+// --- Tarif Arama İşlemleri (Recipe Search) ---
+
+export const searchRecipesByIngredients = async (
+    userIngredients: string[],
+    recipeType?: 'main' | 'dessert',
+    strictMode: boolean = false
+): Promise<Recipe[]> => {
+    try {
+        const recipesCol = collection(db, 'recipes');
+        const querySnapshot = await getDocs(recipesCol);
+        
+        const recipes: Recipe[] = [];
+        querySnapshot.forEach(doc => {
+            const recipe = doc.data() as Recipe;
+            
+            // Filtreleme - sadece tarif tipi
+            if (recipeType && recipe.type !== recipeType) {
+                return;
+            }
+            
+            recipes.push(recipe);
+        });
+        
+        const scored: Array<{ recipe: Recipe; score: number }> = [];
+        
+        for (const recipe of recipes) {
+            let matchedCount = 0;
+            let recipeIngredientCount = recipe.ingredients.length;
+            
+            // Kullanıcı tarafından girilen her malzeme için
+            for (const userIng of userIngredients) {
+                const userIngLower = userIng.toLowerCase().trim();
+                
+                // Tarifdeki malzemelerde ara
+                for (const recipeIng of recipe.ingredients) {
+                    const recipeIngLower = recipeIng.toLowerCase();
+                    
+                    // Eğer kelime malzemenin herhangi bir kısmında varsa = eşleşme
+                    if (recipeIngLower.includes(userIngLower)) {
+                        matchedCount++;
+                        break;
+                    }
+                }
+            }
+            
+            if (matchedCount > 0) {
+                if (strictMode) {
+                    // STRICT MODE: Wصفة sadece verilen malzemeleri içermeli
+                    // userIngredients sayısı >= recipeIngredients sayısı
+                    if (matchedCount === userIngredients.length && 
+                        userIngredients.length >= recipeIngredientCount) {
+                        scored.push({ recipe, score: 100 });
+                    }
+                } else {
+                    // FLEXIBLE MODE: Wصفة verilen malzemeleri içermeli + ekstra OK
+                    // Sadece en az yarısı eşleşmeli
+                    if (matchedCount >= Math.ceil(userIngredients.length * 0.5)) {
+                        const score = (matchedCount / userIngredients.length) * 100;
+                        scored.push({ recipe, score });
+                    }
+                }
+            }
+        }
+        
+        return scored
+            .sort((a, b) => b.score - a.score)
+            .map(item => item.recipe)
+            .slice(0, 5);
+    } catch (error) {
+        console.error("Tarif arama hatası:", error);
+        return [];
     }
 };

@@ -33,7 +33,7 @@ const Footer: React.FC = () => {
             <h3 className="text-base sm:text-lg font-bold text-white mb-3 sm:mb-4">Hızlı Bağlantılar</h3>
             <div className="flex items-center space-x-4 sm:space-x-6">
               {/* Instagram Linki */}
-              <a href="#" className="hover:text-white transition-colors" aria-label="Instagram">
+              <a href="https://www.instagram.com/ahmed200kh/" className="hover:text-white transition-colors" aria-label="Instagram">
                 <InstagramIcon className="w-5 sm:w-6 h-5 sm:h-6" />
               </a>
               {/* X (Twitter) Linki */}
@@ -62,6 +62,9 @@ const Footer: React.FC = () => {
         <div className="container mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 py-3 sm:py-4">
           <p className="text-center text-xs">
             © 2025 Türkiye Mutfağı. Tüm hakları saklıdır.
+          </p>
+          <p className="text-center text-[0.65rem] text-slate-500 mt-1">
+            Designed & Developed by Ahmet Khashan
           </p>
         </div>
       </div>

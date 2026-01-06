@@ -43,7 +43,7 @@ Uygulama birkaç ana modülden oluşmaktadır:
 
 ### D. Yapay Zeka Modülleri
 
-- **Akıllı Şef (AiChef):** `gemini-2.5-pro` modelini kullanır. Kullanıcının girdiği malzemeleri analiz eder ve JSON formatında yapılandırılmış tarif önerileri sunar.
+- **Akıllı Şef (AiChef):** `gemini-2.5-flash` modelini kullanır. Kullanıcının girdiği malzemeleri analiz eder ve JSON formatında yapılandırılmış tarif önerileri sunar.
 - **Akıllı Yardımcı (Chatbot):** Türk mutfağı konusunda uzmanlaşmış, bağlamı anlayabilen bir sohbet botudur. Kullanıcılara anlık yardım sağlar.
 
 ### Frontend
@@ -62,7 +62,7 @@ Uygulama birkaç ana modülden oluşmaktadır:
 
 ### Yapay Zeka (AI Service)
 
-- **Model:** Google Gemini (`gemini-2.5-pro`).
+- **Model:** Google Gemini (`gemini-2.5-flash`).
 - **Entegrasyon:** `@google/genai` SDK.
 
 ## 5\. Veritabanı Şeması (Database Schema)
@@ -116,5 +116,3 @@ npm run dev
 ```
 
 Uygulama tarayıcınızda `http://localhost:3000` (veya benzeri bir portta) çalışmaya başlayacaktır.
-
-iyi günler :)
