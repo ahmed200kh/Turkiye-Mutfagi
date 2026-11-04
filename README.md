@@ -1,6 +1,5 @@
 # Türkiye Mutfağı – Akıllı Tarif Keşif Sistemi
 
-Projenin 1 dakika tanıtım videosu: https://www.youtube.com/watch?v=HnTNP6hN_xg
 
 ## 1\. Proje Özeti
 
